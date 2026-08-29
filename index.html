@@ -1,0 +1,3562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakura Sudoku — A Perfect Day</title>
+
+<style>
+
+/* =========================================================
+   SAKURA SUDOKU — A PERFECT DAY
+   Everything is contained in this one file.
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --pink: #d87fa4;
+    --dark-pink: #a9577d;
+    --light-pink: #ffe8f1;
+    --lighter-pink: #fff7fa;
+    --border: #edbfd2;
+    --text: #a86f8d;
+    --white: #ffffff;
+    --shadow: rgba(150, 75, 110, 0.14);
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--dark-pink);
+
+    background:
+        radial-gradient(circle at 15% 15%, #ffffff 0%, transparent 25%),
+        radial-gradient(circle at 85% 75%, #ffdce9 0%, transparent 35%),
+        linear-gradient(135deg, #fff8fb, #ffe2ec);
+
+    overflow-x: hidden;
+
+    transition:
+        background 1s ease,
+        color 1s ease;
+}
+
+/* =========================================================
+   NIGHT THEME
+========================================================= */
+
+body.night {
+    --pink: #d9a5c2;
+    --dark-pink: #f1c8dc;
+    --light-pink: #3c2940;
+    --lighter-pink: #271d2d;
+    --border: #76516e;
+    --text: #c39db6;
+    --white: #302337;
+    --shadow: rgba(0, 0, 0, 0.30);
+
+    background:
+        radial-gradient(circle at 20% 10%, #4d3a5c 0%, transparent 25%),
+        radial-gradient(circle at 85% 80%, #3b2849 0%, transparent 35%),
+        linear-gradient(135deg, #17121e, #292033);
+}
+
+/* =========================================================
+   BACKGROUND DECORATIONS
+========================================================= */
+
+.background {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.decor {
+    position: absolute;
+    opacity: 0.45;
+    animation: float 5s ease-in-out infinite;
+}
+
+.decor.one {
+    top: 10%;
+    left: 8%;
+    font-size: 25px;
+}
+
+.decor.two {
+    top: 22%;
+    right: 8%;
+    font-size: 30px;
+    animation-delay: 1s;
+}
+
+.decor.three {
+    bottom: 15%;
+    left: 12%;
+    font-size: 22px;
+    animation-delay: 2s;
+}
+
+.decor.four {
+    bottom: 20%;
+    right: 7%;
+    font-size: 27px;
+    animation-delay: 1.5s;
+}
+
+.decor.five {
+    top: 48%;
+    left: 4%;
+    font-size: 20px;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(8deg);
+    }
+}
+
+/* =========================================================
+   SCREEN
+========================================================= */
+
+.screen {
+    display: none;
+    position: relative;
+    min-height: 100vh;
+    z-index: 1;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* =========================================================
+   HOME PAGE
+========================================================= */
+
+.home {
+    width: min(450px, 100%);
+    min-height: 100vh;
+    margin: auto;
+
+    padding: 30px 22px 25px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logo {
+    text-align: center;
+}
+
+.logo-flower {
+    font-size: 28px;
+    margin-bottom: 2px;
+}
+
+.logo h1 {
+    font-family: Georgia, serif;
+    font-weight: normal;
+    font-size: 55px;
+    line-height: 50px;
+    color: var(--pink);
+    letter-spacing: 1px;
+}
+
+.logo h2 {
+    font-family: Georgia, serif;
+    font-weight: normal;
+    font-size: 29px;
+    letter-spacing: 8px;
+    color: var(--dark-pink);
+}
+
+.logo p {
+    margin-top: 8px;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--text);
+}
+
+/* =========================================================
+   TIME GREETING
+========================================================= */
+
+.time-greeting {
+    margin-top: 17px;
+
+    padding: 8px 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 30px;
+
+    background: var(--white);
+
+    box-shadow: 0 6px 20px var(--shadow);
+
+    font-size: 10px;
+    color: var(--text);
+}
+
+/* =========================================================
+   CAT
+========================================================= */
+
+.cat {
+    margin: 13px 0;
+
+    padding: 9px 17px;
+
+    border: 1px solid var(--border);
+    border-radius: 40px;
+
+    background: var(--white);
+
+    box-shadow: 0 7px 20px var(--shadow);
+
+    font-size: 24px;
+}
+
+/* =========================================================
+   PERFECT DAY CARD
+========================================================= */
+
+.day-card {
+    width: 100%;
+
+    padding: 15px 17px;
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    background: var(--white);
+
+    box-shadow: 0 8px 25px var(--shadow);
+}
+
+.day-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.day-title strong {
+    color: var(--pink);
+}
+
+.progress-track {
+    width: 100%;
+    height: 7px;
+
+    margin: 10px 0;
+
+    background: var(--light-pink);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+
+    background: var(--pink);
+
+    border-radius: 20px;
+
+    transition: width 0.6s ease;
+}
+
+.stages {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+
+    color: var(--text);
+
+    transition: 0.3s;
+}
+
+.stage-icon {
+    font-size: 19px;
+    filter: grayscale(1);
+    opacity: 0.45;
+}
+
+.stage small {
+    font-size: 8px;
+}
+
+.stage.completed .stage-icon {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.stage.current {
+    color: var(--dark-pink);
+    transform: scale(1.08);
+}
+
+.stage.current .stage-icon {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+/* =========================================================
+   COINS
+========================================================= */
+
+.coins {
+    margin: 11px 0;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 6px 13px;
+
+    border: 1px solid var(--border);
+    border-radius: 30px;
+
+    background: var(--white);
+
+    font-size: 10px;
+    color: var(--text);
+}
+
+.coin {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    background: #eaa7c4;
+
+    color: white;
+
+    font-size: 13px;
+}
+
+.coins strong {
+    color: var(--dark-pink);
+}
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+.play-button {
+    width: 100%;
+
+    padding: 16px;
+
+    border: 1px solid #d68aaa;
+    border-radius: 19px;
+
+    background: var(--white);
+
+    color: var(--dark-pink);
+
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    box-shadow: 0 7px 20px var(--shadow);
+
+    transition: 0.2s;
+}
+
+.play-button:hover {
+    transform: translateY(-2px);
+}
+
+.arrow {
+    display: inline-block;
+    margin-left: 7px;
+
+    transition: transform 0.3s;
+}
+
+/* =========================================================
+   LEVEL DROPDOWN
+========================================================= */
+
+.level-menu {
+    max-height: 0;
+    overflow: hidden;
+
+    opacity: 0;
+
+    margin-top: 7px;
+
+    padding: 0;
+
+    border: 1px solid transparent;
+    border-radius: 18px;
+
+    background: var(--white);
+
+    transition:
+        max-height 0.35s ease,
+        opacity 0.3s ease,
+        padding 0.3s ease;
+}
+
+.level-menu.open {
+    max-height: 420px;
+
+    padding: 6px;
+
+    opacity: 1;
+
+    border-color: var(--border);
+}
+
+.level {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 8px;
+
+    border: none;
+    border-radius: 13px;
+
+    background: transparent;
+
+    color: var(--dark-pink);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.level:hover {
+    background: var(--light-pink);
+    transform: translateX(3px);
+}
+
+.level-icon {
+    width: 42px;
+    font-size: 23px;
+    text-align: center;
+}
+
+.level-info {
+    flex: 1;
+    margin-left: 6px;
+}
+
+.level-info strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.level-info small {
+    font-size: 9px;
+    color: var(--text);
+}
+
+.level-arrow {
+    font-size: 21px;
+    color: var(--text);
+}
+
+/* =========================================================
+   EXTRA BUTTONS
+========================================================= */
+
+.extra-buttons {
+    display: flex;
+    gap: 8px;
+
+    margin-top: 9px;
+}
+
+.extra-buttons button {
+    flex: 1;
+
+    padding: 11px 5px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    background: var(--white);
+
+    color: var(--text);
+
+    font-size: 9px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.extra-buttons button:hover {
+    background: var(--light-pink);
+}
+
+.streak {
+    margin-top: 11px;
+
+    font-size: 10px;
+
+    color: var(--text);
+}
+
+.home-footer {
+    margin-top: auto;
+    padding-top: 18px;
+
+    font-family: Georgia, serif;
+    font-style: italic;
+
+    font-size: 10px;
+
+    color: var(--text);
+}
+
+/* =========================================================
+   GAME PAGE
+========================================================= */
+
+.game {
+    width: min(520px, 100%);
+    min-height: 100vh;
+
+    margin: auto;
+
+    padding: 18px 18px 25px;
+}
+
+/* =========================================================
+   GAME HEADER
+========================================================= */
+
+.game-header {
+    display: grid;
+    grid-template-columns: 43px 1fr auto;
+
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.back {
+    width: 37px;
+    height: 37px;
+
+    border: 1px solid var(--border);
+    border-radius: 50%;
+
+    background: var(--white);
+
+    color: var(--dark-pink);
+
+    font-size: 19px;
+
+    cursor: pointer;
+}
+
+.game-title {
+    text-align: center;
+}
+
+.game-title .icon {
+    font-size: 22px;
+}
+
+.game-title h2 {
+    font-family: Georgia, serif;
+    font-weight: normal;
+
+    font-size: 24px;
+
+    color: var(--dark-pink);
+}
+
+.game-title p {
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    color: var(--text);
+}
+
+.game-coins {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.game-coins .coin {
+    width: 23px;
+    height: 23px;
+    font-size: 10px;
+}
+
+/* =========================================================
+   GAME INFO
+========================================================= */
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 10px 15px;
+
+    margin-bottom: 11px;
+
+    border: 1px solid var(--border);
+    border-radius: 15px;
+
+    background: var(--white);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-item span {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+
+.info-item strong {
+    font-size: 13px;
+    color: var(--dark-pink);
+}
+
+/* =========================================================
+   SUDOKU BOARD
+========================================================= */
+
+.board {
+    width: min(460px, 100%);
+
+    aspect-ratio: 1;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(9, 1fr);
+
+    border: 3px solid var(--dark-pink);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    background: var(--white);
+
+    box-shadow: 0 9px 27px var(--shadow);
+}
+
+.cell {
+    position: relative;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+
+    background: var(--white);
+
+    color: var(--dark-pink);
+
+    font-size: clamp(15px, 5vw, 24px);
+    font-weight: 500;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.cell:nth-child(3n) {
+    border-right: 2px solid var(--pink);
+}
+
+.cell:nth-child(9n) {
+    border-right: none;
+}
+
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom: 2px solid var(--pink);
+}
+
+.cell:nth-child(n+73) {
+    border-bottom: none;
+}
+
+.cell.given {
+    background: var(--light-pink);
+    color: var(--dark-pink);
+    font-weight: bold;
+}
+
+.cell.selected {
+    background: #f5cadc;
+}
+
+body.night .cell.selected {
+    background: #59405b;
+}
+
+.cell.related {
+    background: #fff3f7;
+}
+
+body.night .cell.related {
+    background: #38283d;
+}
+
+.cell.same-number {
+    background: #f7d5e3;
+}
+
+body.night .cell.same-number {
+    background: #51394f;
+}
+
+.cell.wrong {
+    background: #ffe0e0;
+    color: #c65f6f;
+}
+
+.cell.correct {
+    animation: correct 0.4s ease;
+}
+
+@keyframes correct {
+    0% {
+        background: #eab1c9;
+    }
+
+    100% {
+        background: var(--white);
+    }
+}
+
+/* =========================================================
+   NOTES
+========================================================= */
+
+.notes {
+    position: absolute;
+
+    inset: 3px;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    pointer-events: none;
+}
+
+.notes span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 8px;
+
+    color: var(--pink);
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls {
+    display: flex;
+    gap: 7px;
+
+    margin-top: 11px;
+}
+
+.controls button {
+    flex: 1;
+
+    padding: 10px 5px;
+
+    border: 1px solid var(--border);
+    border-radius: 13px;
+
+    background: var(--white);
+
+    color: var(--dark-pink);
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+.controls button.active {
+    background: var(--light-pink);
+    border-color: var(--pink);
+}
+
+/* =========================================================
+   NUMBER PAD
+========================================================= */
+
+.number-pad {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+
+    gap: 5px;
+
+    margin-top: 10px;
+}
+
+.number-pad button {
+    aspect-ratio: 1;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    background: var(--white);
+
+    color: var(--dark-pink);
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.15s;
+}
+
+.number-pad button:hover {
+    background: var(--light-pink);
+}
+
+.number-pad button:active {
+    transform: scale(0.93);
+}
+
+.new-puzzle {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 11px;
+
+    border: none;
+    border-radius: 14px;
+
+    background: var(--light-pink);
+
+    color: var(--dark-pink);
+
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+}
+
+/* =========================================================
+   POPUPS
+========================================================= */
+
+.popup {
+    position: fixed;
+    inset: 0;
+
+    z-index: 50;
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    background: rgba(50, 30, 45, 0.28);
+}
+
+.popup.show {
+    display: flex;
+}
+
+.popup-box {
+    width: min(350px, 100%);
+
+    padding: 27px 22px;
+
+    border: 2px solid var(--border);
+    border-radius: 23px;
+
+    background: var(--white);
+
+    text-align: center;
+
+    box-shadow: 0 18px 45px rgba(50, 30, 45, 0.2);
+
+    animation: popupIn 0.25s ease;
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.popup-box h2 {
+    margin-bottom: 12px;
+
+    font-family: Georgia, serif;
+    font-weight: normal;
+
+    color: var(--dark-pink);
+}
+
+.popup-box p {
+    margin-bottom: 10px;
+
+    font-size: 12px;
+    line-height: 18px;
+
+    color: var(--text);
+}
+
+.popup-flower {
+    font-size: 38px;
+    margin-bottom: 7px;
+}
+
+.popup-button {
+    margin-top: 8px;
+
+    padding: 11px 23px;
+
+    border: none;
+    border-radius: 15px;
+
+    background: var(--light-pink);
+
+    color: var(--dark-pink);
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.close-popup {
+    position: absolute;
+
+    top: 10px;
+    right: 15px;
+
+    border: none;
+    background: transparent;
+
+    color: var(--text);
+
+    font-size: 23px;
+
+    cursor: pointer;
+}
+
+.popup-box {
+    position: relative;
+}
+
+.reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 12px;
+
+    margin: 4px 0;
+
+    border-radius: 20px;
+
+    background: var(--light-pink);
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 450px) {
+
+    .home {
+        padding-top: 24px;
+    }
+
+    .logo h1 {
+        font-size: 48px;
+    }
+
+    .logo h2 {
+        font-size: 26px;
+    }
+
+    .game {
+        padding: 14px;
+    }
+
+    .number-pad {
+        gap: 3px;
+    }
+
+    .number-pad button {
+        border-radius: 8px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<!-- =====================================================
+     BACKGROUND
+===================================================== -->
+
+<div class="background">
+    <span class="decor one">✦</span>
+    <span class="decor two">✧</span>
+    <span class="decor three">☆</span>
+    <span class="decor four">🌸</span>
+    <span class="decor five">୨୧</span>
+</div>
+
+
+<!-- =====================================================
+     HOME SCREEN
+===================================================== -->
+
+<section id="homeScreen" class="screen active">
+
+    <div class="home">
+
+        <div class="logo">
+
+            <div class="logo-flower">🌸</div>
+
+            <h1>Sakura</h1>
+
+            <h2>Sudoku</h2>
+
+            <p>A perfect day, one puzzle at a time ♡</p>
+
+        </div>
+
+
+        <div id="timeGreeting" class="time-greeting">
+            Good morning ♡
+        </div>
+
+
+        <div class="cat">
+            ૮ ˶ᵔ ᵕ ᵔ˶ ა
+        </div>
+
+
+        <!-- PERFECT DAY -->
+
+        <div class="day-card">
+
+            <div class="day-title">
+
+                <span>YOUR PERFECT DAY</span>
+
+                <strong>
+                    <span id="completedCount">0</span> / 4
+                </strong>
+
+            </div>
+
+
+            <div class="progress-track">
+
+                <div
+                    id="progressFill"
+                    class="progress-fill">
+                </div>
+
+            </div>
+
+
+            <div class="stages">
+
+                <div
+                    id="stageMorning"
+                    class="stage">
+
+                    <span class="stage-icon">🌅</span>
+                    <small>Morning</small>
+
+                </div>
+
+
+                <div
+                    id="stageAfternoon"
+                    class="stage">
+
+                    <span class="stage-icon">☀️</span>
+                    <small>Afternoon</small>
+
+                </div>
+
+
+                <div
+                    id="stageEvening"
+                    class="stage">
+
+                    <span class="stage-icon">🌇</span>
+                    <small>Evening</small>
+
+                </div>
+
+
+                <div
+                    id="stageNight"
+                    class="stage">
+
+                    <span class="stage-icon">🌙</span>
+                    <small>Night</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- COINS -->
+
+        <div class="coins">
+
+            <span class="coin">✿</span>
+
+            <strong id="homeCoins">120</strong>
+
+            <span>Sakura Points</span>
+
+        </div>
+
+
+        <!-- PLAY -->
+
+        <div style="width:100%">
+
+            <button
+                id="playButton"
+                class="play-button">
+
+                PLAY YOUR DAY
+
+                <span id="arrow" class="arrow">⌄</span>
+
+            </button>
+
+
+            <!-- LEVEL DROPDOWN -->
+
+            <div
+                id="levelMenu"
+                class="level-menu">
+
+
+                <button
+                    class="level"
+                    data-level="easy">
+
+                    <span class="level-icon">🌅</span>
+
+                    <span class="level-info">
+
+                        <strong>Morning</strong>
+
+                        <small>A Fresh Start · Easy</small>
+
+                    </span>
+
+                    <span class="level-arrow">›</span>
+
+                </button>
+
+
+                <button
+                    class="level"
+                    data-level="medium">
+
+                    <span class="level-icon">☀️</span>
+
+                    <span class="level-info">
+
+                        <strong>Afternoon</strong>
+
+                        <small>Make It Count · Medium</small>
+
+                    </span>
+
+                    <span class="level-arrow">›</span>
+
+                </button>
+
+
+                <button
+                    class="level"
+                    data-level="hard">
+
+                    <span class="level-icon">🌇</span>
+
+                    <span class="level-info">
+
+                        <strong>Golden Hour</strong>
+
+                        <small>Almost There · Hard</small>
+
+                    </span>
+
+                    <span class="level-arrow">›</span>
+
+                </button>
+
+
+                <button
+                    class="level"
+                    data-level="night">
+
+                    <span class="level-icon">🌙</span>
+
+                    <span class="level-info">
+
+                        <strong>Night</strong>
+
+                        <small>Complete Your Day · Challenge</small>
+
+                    </span>
+
+                    <span class="level-arrow">›</span>
+
+                </button>
+
+            </div>
+
+
+            <div class="extra-buttons">
+
+                <button id="tutorialButton">
+                    HOW TO PLAY
+                </button>
+
+                <button id="dailyButton">
+                    DAILY CHALLENGE
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="streak">
+            🔥 <strong id="streak">0</strong> day streak
+        </div>
+
+
+        <div class="home-footer">
+            made with a little sakura magic ♡
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     GAME SCREEN
+===================================================== -->
+
+<section id="gameScreen" class="screen">
+
+    <div class="game">
+
+        <header class="game-header">
+
+            <button
+                id="backButton"
+                class="back">
+
+                ←
+
+            </button>
+
+
+            <div class="game-title">
+
+                <div
+                    id="gameIcon"
+                    class="icon">
+
+                    🌅
+
+                </div>
+
+                <h2 id="gameTitle">
+                    Morning
+                </h2>
+
+                <p id="gameSubtitle">
+                    A Fresh Start · Easy
+                </p>
+
+            </div>
+
+
+            <div class="game-coins">
+
+                <span class="coin">✿</span>
+
+                <span id="gameCoins">
+                    120
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- INFO -->
+
+        <div class="game-info">
+
+            <div class="info-item">
+
+                <span>TIME</span>
+
+                <strong id="timer">
+                    00:00
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>MISTAKES</span>
+
+                <strong>
+                    <span id="mistakes">0</span> / 3
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUDOKU -->
+
+        <div id="board" class="board"></div>
+
+
+        <!-- CONTROLS -->
+
+        <div class="controls">
+
+            <button id="notesButton">
+                📝 Notes
+            </button>
+
+            <button id="hintButton">
+                ✦ Hint
+            </button>
+
+            <button id="eraseButton">
+                Erase
+            </button>
+
+        </div>
+
+
+        <!-- NUMBER PAD -->
+
+        <div class="number-pad">
+
+            <button data-number="1">1</button>
+            <button data-number="2">2</button>
+            <button data-number="3">3</button>
+            <button data-number="4">4</button>
+            <button data-number="5">5</button>
+            <button data-number="6">6</button>
+            <button data-number="7">7</button>
+            <button data-number="8">8</button>
+            <button data-number="9">9</button>
+
+        </div>
+
+
+        <button
+            id="newPuzzle"
+            class="new-puzzle">
+
+            NEW PUZZLE
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     TUTORIAL POPUP
+===================================================== -->
+
+<div id="tutorialPopup" class="popup">
+
+    <div class="popup-box">
+
+        <button
+            id="closeTutorial"
+            class="close-popup">
+
+            ×
+
+        </button>
+
+        <div class="popup-flower">
+            🌸
+        </div>
+
+        <h2>How to Play</h2>
+
+        <p>
+            Fill every row, column and 3 × 3 box
+            with the numbers 1–9.
+        </p>
+
+        <p>
+            You can make up to three mistakes.
+        </p>
+
+        <p>
+            Use Notes when you want to remember
+            possible numbers.
+        </p>
+
+        <p>
+            Complete all four parts of your day
+            to achieve your Perfect Day.
+        </p>
+
+        <button
+            id="okayTutorial"
+            class="popup-button">
+
+            GOT IT ♡
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     WIN POPUP
+===================================================== -->
+
+<div id="winPopup" class="popup">
+
+    <div class="popup-box">
+
+        <div class="popup-flower">
+            🌸
+        </div>
+
+        <h2 id="winTitle">
+            Perfect!
+        </h2>
+
+        <p id="winMessage">
+            Another beautiful part of your day is complete.
+        </p>
+
+        <div class="reward">
+            ✿ <strong>+25 Sakura Points</strong>
+        </div>
+
+        <br>
+
+        <button
+            id="continueButton"
+            class="popup-button">
+
+            CONTINUE ♡
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GAME OVER
+===================================================== -->
+
+<div id="gameOverPopup" class="popup">
+
+    <div class="popup-box">
+
+        <div class="popup-flower">
+            🌸
+        </div>
+
+        <h2>
+            Take a little break ♡
+        </h2>
+
+        <p>
+            Three mistakes have been made.
+            Your Perfect Day isn't over.
+        </p>
+
+        <button
+            id="tryAgain"
+            class="popup-button">
+
+            TRY AGAIN
+
+        </button>
+
+        <br>
+
+        <button
+            id="goHome"
+            class="popup-button">
+
+            HOME
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   SAKURA SUDOKU JAVASCRIPT
+========================================================= */
+
+
+/* =========================================================
+   PUZZLES
+========================================================= */
+
+const puzzles = {
+
+    easy: [
+        "530070000",
+        "600195000",
+        "098000060",
+        "800060003",
+        "400803001",
+        "700020006",
+        "060000280",
+        "000419005",
+        "000080079"
+    ],
+
+    medium: [
+        "530070000",
+        "600005000",
+        "098000060",
+        "800060003",
+        "400803001",
+        "700020006",
+        "060000280",
+        "000419005",
+        "000080079"
+    ],
+
+    hard: [
+        "000000907",
+        "000420180",
+        "000705026",
+        "100904000",
+        "050000040",
+        "000507009",
+        "920108000",
+        "034059000",
+        "507000000"
+    ],
+
+    night: [
+        "000000907",
+        "000420180",
+        "000705026",
+        "100904000",
+        "050000040",
+        "000507009",
+        "920108000",
+        "034059000",
+        "507000000"
+    ]
+
+};
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let selectedLevel = "easy";
+
+let board = [];
+let solution = [];
+let originalBoard = [];
+
+let selectedCell = null;
+
+let mistakes = 0;
+
+let notesMode = false;
+
+let notes = [];
+
+let seconds = 0;
+let timer = null;
+
+let coins =
+    Number(localStorage.getItem("sakuraCoins")) || 120;
+
+let completed =
+    JSON.parse(
+        localStorage.getItem("sakuraCompleted") || "[]"
+    );
+
+let streak =
+    Number(localStorage.getItem("sakuraStreak")) || 0;
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const homeScreen =
+    document.getElementById("homeScreen");
+
+const gameScreen =
+    document.getElementById("gameScreen");
+
+const playButton =
+    document.getElementById("playButton");
+
+const levelMenu =
+    document.getElementById("levelMenu");
+
+const arrow =
+    document.getElementById("arrow");
+
+const boardElement =
+    document.getElementById("board");
+
+
+/* =========================================================
+   TIME-BASED PERFECT DAY THEME
+========================================================= */
+
+function updateTimeTheme() {
+
+    const hour =
+        new Date().getHours();
+
+
+    /*
+       5am - 11am = Morning
+       12pm - 4pm = Afternoon
+       5pm - 7pm = Golden Hour
+       8pm - 4am = Night
+    */
+
+    if (hour >= 20 || hour < 5) {
+
+        document.body.classList.add("night");
+
+        document.getElementById(
+            "timeGreeting"
+        ).textContent =
+            "Good evening ♡ The stars are out";
+
+    }
+
+    else {
+
+        document.body.classList.remove("night");
+
+
+        if (hour < 12) {
+
+            document.getElementById(
+                "timeGreeting"
+            ).textContent =
+                "Good morning ♡ Start your perfect day";
+
+        }
+
+        else if (hour < 17) {
+
+            document.getElementById(
+                "timeGreeting"
+            ).textContent =
+                "Good afternoon ♡ Make today count";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "timeGreeting"
+            ).textContent =
+                "Golden hour ♡ You're almost there";
+
+        }
+
+    }
+
+
+    updateCurrentStage();
+
+}
+
+
+/* Run when website opens */
+
+updateTimeTheme();
+
+
+/*
+   Check every minute so the website can change
+   from day → night without refreshing.
+*/
+
+setInterval(
+    updateTimeTheme,
+    60000
+);
+
+
+/* =========================================================
+   CURRENT STAGE
+========================================================= */
+
+function updateCurrentStage() {
+
+    const hour =
+        new Date().getHours();
+
+
+    document
+        .querySelectorAll(".stage")
+        .forEach(stage => {
+
+            stage.classList.remove("current");
+
+        });
+
+
+    let stageId;
+
+
+    if (hour >= 5 && hour < 12) {
+
+        stageId = "stageMorning";
+
+    }
+
+    else if (hour >= 12 && hour < 17) {
+
+        stageId = "stageAfternoon";
+
+    }
+
+    else if (hour >= 17 && hour < 20) {
+
+        stageId = "stageEvening";
+
+    }
+
+    else {
+
+        stageId = "stageNight";
+
+    }
+
+
+    const current =
+        document.getElementById(stageId);
+
+
+    if (current) {
+
+        current.classList.add("current");
+
+    }
+
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+playButton.addEventListener(
+    "click",
+    () => {
+
+        levelMenu.classList.toggle(
+            "open"
+        );
+
+
+        if (
+            levelMenu.classList.contains(
+                "open"
+            )
+        ) {
+
+            arrow.style.transform =
+                "rotate(180deg)";
+
+        }
+
+        else {
+
+            arrow.style.transform =
+                "rotate(0deg)";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LEVEL BUTTONS
+========================================================= */
+
+document
+    .querySelectorAll(".level")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                selectedLevel =
+                    button.dataset.level;
+
+                startGame();
+
+            }
+        );
+
+    });
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame() {
+
+    homeScreen.classList.remove(
+        "active"
+    );
+
+    gameScreen.classList.add(
+        "active"
+    );
+
+    setupGame();
+
+}
+
+
+/* =========================================================
+   SETUP
+========================================================= */
+
+function setupGame() {
+
+    stopTimer();
+
+
+    mistakes = 0;
+
+    seconds = 0;
+
+    notesMode = false;
+
+    selectedCell = null;
+
+
+    document.getElementById(
+        "mistakes"
+    ).textContent = "0";
+
+
+    document
+        .getElementById(
+            "notesButton"
+        )
+        .classList.remove("active");
+
+
+    const puzzle =
+        puzzles[selectedLevel];
+
+
+    originalBoard =
+        puzzle.map(
+            row =>
+                row
+                    .split("")
+                    .map(Number)
+        );
+
+
+    board =
+        puzzle.map(
+            row =>
+                row
+                    .split("")
+                    .map(Number)
+        );
+
+
+    solution =
+        puzzle.map(
+            row =>
+                row
+                    .split("")
+                    .map(Number)
+        );
+
+
+    /* Generate solution */
+
+    solveSudoku(solution);
+
+
+    /* Create empty notes */
+
+    notes =
+        Array.from(
+            { length: 9 },
+            () =>
+                Array.from(
+                    { length: 9 },
+                    () => []
+                )
+        );
+
+
+    updateGameHeader();
+
+    createBoard();
+
+    startTimer();
+
+}
+
+
+/* =========================================================
+   GAME HEADER
+========================================================= */
+
+function updateGameHeader() {
+
+    const icon =
+        document.getElementById(
+            "gameIcon"
+        );
+
+    const title =
+        document.getElementById(
+            "gameTitle"
+        );
+
+    const subtitle =
+        document.getElementById(
+            "gameSubtitle"
+        );
+
+
+    if (selectedLevel === "easy") {
+
+        icon.textContent = "🌅";
+
+        title.textContent =
+            "Morning";
+
+        subtitle.textContent =
+            "A Fresh Start · Easy";
+
+    }
+
+    else if (selectedLevel === "medium") {
+
+        icon.textContent = "☀️";
+
+        title.textContent =
+            "Afternoon";
+
+        subtitle.textContent =
+            "Make It Count · Medium";
+
+    }
+
+    else if (selectedLevel === "hard") {
+
+        icon.textContent = "🌇";
+
+        title.textContent =
+            "Golden Hour";
+
+        subtitle.textContent =
+            "Almost There · Hard";
+
+    }
+
+    else {
+
+        icon.textContent = "🌙";
+
+        title.textContent =
+            "Night";
+
+        subtitle.textContent =
+            "Complete Your Day · Challenge";
+
+    }
+
+
+    document.getElementById(
+        "gameCoins"
+    ).textContent = coins;
+
+}
+
+
+/* =========================================================
+   CREATE BOARD
+========================================================= */
+
+function createBoard() {
+
+    boardElement.innerHTML = "";
+
+
+    for (
+        let row = 0;
+        row < 9;
+        row++
+    ) {
+
+        for (
+            let col = 0;
+            col < 9;
+            col++
+        ) {
+
+            const cell =
+                document.createElement(
+                    "div"
+                );
+
+
+            cell.className =
+                "cell";
+
+
+            cell.dataset.row =
+                row;
+
+            cell.dataset.col =
+                col;
+
+
+            const value =
+                board[row][col];
+
+
+            if (value !== 0) {
+
+                cell.textContent =
+                    value;
+
+                cell.classList.add(
+                    "given"
+                );
+
+            }
+
+
+            cell.addEventListener(
+                "click",
+                () => {
+
+                    selectCell(
+                        row,
+                        col
+                    );
+
+                }
+            );
+
+
+            boardElement.appendChild(
+                cell
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   SELECT CELL
+========================================================= */
+
+function selectCell(row, col) {
+
+    selectedCell = {
+        row,
+        col
+    };
+
+
+    updateHighlights();
+
+}
+
+
+/* =========================================================
+   HIGHLIGHTS
+========================================================= */
+
+function updateHighlights() {
+
+    const cells =
+        document.querySelectorAll(
+            ".cell"
+        );
+
+
+    cells.forEach(cell => {
+
+        cell.classList.remove(
+            "selected",
+            "related",
+            "same-number"
+        );
+
+    });
+
+
+    if (!selectedCell) {
+
+        return;
+
+    }
+
+
+    const row =
+        selectedCell.row;
+
+    const col =
+        selectedCell.col;
+
+
+    const selectedValue =
+        board[row][col];
+
+
+    cells.forEach(cell => {
+
+        const r =
+            Number(cell.dataset.row);
+
+        const c =
+            Number(cell.dataset.col);
+
+
+        if (
+            r === row &&
+            c === col
+        ) {
+
+            cell.classList.add(
+                "selected"
+            );
+
+        }
+
+
+        if (
+            r === row ||
+            c === col ||
+            (
+                Math.floor(r / 3) ===
+                Math.floor(row / 3) &&
+
+                Math.floor(c / 3) ===
+                Math.floor(col / 3)
+            )
+        ) {
+
+            cell.classList.add(
+                "related"
+            );
+
+        }
+
+
+        if (
+            selectedValue !== 0 &&
+            board[r][c] === selectedValue
+        ) {
+
+            cell.classList.add(
+                "same-number"
+            );
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   NUMBER BUTTONS
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".number-pad button"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                enterNumber(
+                    Number(
+                        button.dataset.number
+                    )
+                );
+
+            }
+        );
+
+    });
+
+
+/* =========================================================
+   ENTER NUMBER
+========================================================= */
+
+function enterNumber(number) {
+
+    if (!selectedCell) {
+
+        return;
+
+    }
+
+
+    const row =
+        selectedCell.row;
+
+    const col =
+        selectedCell.col;
+
+
+    /* Given numbers cannot be changed */
+
+    if (
+        originalBoard[row][col] !== 0
+    ) {
+
+        return;
+
+    }
+
+
+    /* Notes mode */
+
+    if (notesMode) {
+
+        toggleNote(
+            row,
+            col,
+            number
+        );
+
+        return;
+
+    }
+
+
+    /* Correct */
+
+    if (
+        solution[row][col] === number
+    ) {
+
+        board[row][col] =
+            number;
+
+
+        notes[row][col] = [];
+
+
+        renderCell(
+            row,
+            col
+        );
+
+
+        checkWin();
+
+    }
+
+    /* Incorrect */
+
+    else {
+
+        mistakes++;
+
+
+        document.getElementById(
+            "mistakes"
+        ).textContent =
+            mistakes;
+
+
+        showWrong(
+            row,
+            col
+        );
+
+
+        if (mistakes >= 3) {
+
+            stopTimer();
+
+
+            setTimeout(
+                () => {
+
+                    document
+                        .getElementById(
+                            "gameOverPopup"
+                        )
+                        .classList.add(
+                            "show"
+                        );
+
+                },
+                450
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER CELL
+========================================================= */
+
+function renderCell(row, col) {
+
+    const index =
+        row * 9 + col;
+
+
+    const cell =
+        boardElement.children[index];
+
+
+    cell.innerHTML = "";
+
+
+    if (
+        board[row][col] !== 0
+    ) {
+
+        cell.textContent =
+            board[row][col];
+
+        cell.classList.add(
+            "correct"
+        );
+
+    }
+
+
+    updateHighlights();
+
+}
+
+
+/* =========================================================
+   WRONG NUMBER
+========================================================= */
+
+function showWrong(row, col) {
+
+    const index =
+        row * 9 + col;
+
+
+    const cell =
+        boardElement.children[index];
+
+
+    cell.classList.add(
+        "wrong"
+    );
+
+
+    cell.textContent =
+        "×";
+
+
+    setTimeout(
+        () => {
+
+            if (
+                board[row][col] === 0
+            ) {
+
+                cell.textContent =
+                    "";
+
+            }
+
+            cell.classList.remove(
+                "wrong"
+            );
+
+        },
+        500
+    );
+
+}
+
+
+/* =========================================================
+   NOTES
+========================================================= */
+
+function toggleNote(
+    row,
+    col,
+    number
+) {
+
+    if (
+        board[row][col] !== 0
+    ) {
+
+        return;
+
+    }
+
+
+    const list =
+        notes[row][col];
+
+
+    const index =
+        list.indexOf(number);
+
+
+    if (index === -1) {
+
+        list.push(number);
+
+        list.sort();
+
+    }
+
+    else {
+
+        list.splice(
+            index,
+            1
+        );
+
+    }
+
+
+    renderNotes(
+        row,
+        col
+    );
+
+}
+
+
+function renderNotes(row, col) {
+
+    const index =
+        row * 9 + col;
+
+
+    const cell =
+        boardElement.children[index];
+
+
+    cell.innerHTML = "";
+
+
+    const noteBox =
+        document.createElement(
+            "div"
+        );
+
+
+    noteBox.className =
+        "notes";
+
+
+    for (
+        let number = 1;
+        number <= 9;
+        number++
+    ) {
+
+        const note =
+            document.createElement(
+                "span"
+            );
+
+
+        if (
+            notes[row][col]
+                .includes(number)
+        ) {
+
+            note.textContent =
+                number;
+
+        }
+
+
+        noteBox.appendChild(
+            note
+        );
+
+    }
+
+
+    cell.appendChild(
+        noteBox
+    );
+
+}
+
+
+/* =========================================================
+   NOTES BUTTON
+========================================================= */
+
+document
+    .getElementById(
+        "notesButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            notesMode =
+                !notesMode;
+
+
+            document
+                .getElementById(
+                    "notesButton"
+                )
+                .classList.toggle(
+                    "active"
+                );
+
+        }
+    );
+
+
+/* =========================================================
+   ERASE
+========================================================= */
+
+document
+    .getElementById(
+        "eraseButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            if (!selectedCell) {
+
+                return;
+
+            }
+
+
+            const row =
+                selectedCell.row;
+
+            const col =
+                selectedCell.col;
+
+
+            if (
+                originalBoard[row][col] !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            board[row][col] =
+                0;
+
+
+            notes[row][col] =
+                [];
+
+
+            renderCell(
+                row,
+                col
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+document
+    .getElementById(
+        "hintButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            if (!selectedCell) {
+
+                alert(
+                    "Select an empty cell first ♡"
+                );
+
+                return;
+
+            }
+
+
+            const row =
+                selectedCell.row;
+
+            const col =
+                selectedCell.col;
+
+
+            if (
+                originalBoard[row][col] !== 0 ||
+                board[row][col] !== 0
+            ) {
+
+                return;
+
+            }
+
+
+            if (coins < 10) {
+
+                alert(
+                    "You need 10 Sakura Points for a hint."
+                );
+
+                return;
+
+            }
+
+
+            coins -= 10;
+
+
+            saveCoins();
+
+
+            document.getElementById(
+                "gameCoins"
+            ).textContent =
+                coins;
+
+
+            board[row][col] =
+                solution[row][col];
+
+
+            notes[row][col] =
+                [];
+
+
+            renderCell(
+                row,
+                col
+            );
+
+
+            checkWin();
+
+        }
+    );
+
+
+/* =========================================================
+   CHECK WIN
+========================================================= */
+
+function checkWin() {
+
+    for (
+        let row = 0;
+        row < 9;
+        row++
+    ) {
+
+        for (
+            let col = 0;
+            col < 9;
+            col++
+        ) {
+
+            if (
+                board[row][col] === 0
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+    }
+
+
+    finishGame();
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   FINISH GAME
+========================================================= */
+
+function finishGame() {
+
+    stopTimer();
+
+
+    coins += 25;
+
+    saveCoins();
+
+
+    if (
+        !completed.includes(
+            selectedLevel
+        )
+    ) {
+
+        completed.push(
+            selectedLevel
+        );
+
+
+        localStorage.setItem(
+            "sakuraCompleted",
+            JSON.stringify(
+                completed
+            )
+        );
+
+    }
+
+
+    streak++;
+
+    localStorage.setItem(
+        "sakuraStreak",
+        streak
+    );
+
+
+    const title =
+        document.getElementById(
+            "winTitle"
+        );
+
+    const message =
+        document.getElementById(
+            "winMessage"
+        );
+
+
+    if (
+        selectedLevel === "night"
+    ) {
+
+        title.textContent =
+            "PERFECT DAY! 🌸";
+
+        message.textContent =
+            "You completed every part of your perfect day.";
+
+    }
+
+    else {
+
+        title.textContent =
+            "Perfect! ♡";
+
+        message.textContent =
+            "Another beautiful part of your day is complete.";
+
+    }
+
+
+    setTimeout(
+        () => {
+
+            document
+                .getElementById(
+                    "winPopup"
+                )
+                .classList.add(
+                    "show"
+                );
+
+        },
+        350
+    );
+
+}
+
+
+/* =========================================================
+   SAVE COINS
+========================================================= */
+
+function saveCoins() {
+
+    localStorage.setItem(
+        "sakuraCoins",
+        coins
+    );
+
+
+    document.getElementById(
+        "homeCoins"
+    ).textContent =
+        coins;
+
+}
+
+
+/* =========================================================
+   HOME PROGRESS
+========================================================= */
+
+function updateProgress() {
+
+    const count =
+        completed.length;
+
+
+    document.getElementById(
+        "completedCount"
+    ).textContent =
+        count;
+
+
+    document.getElementById(
+        "progressFill"
+    ).style.width =
+        (count / 4 * 100) + "%";
+
+
+    document.getElementById(
+        "streak"
+    ).textContent =
+        streak;
+
+
+    const mapping = {
+
+        easy: "stageMorning",
+
+        medium: "stageAfternoon",
+
+        hard: "stageEvening",
+
+        night: "stageNight"
+
+    };
+
+
+    completed.forEach(level => {
+
+        const element =
+            document.getElementById(
+                mapping[level]
+            );
+
+
+        if (element) {
+
+            element.classList.add(
+                "completed"
+            );
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function startTimer() {
+
+    seconds = 0;
+
+    updateTimer();
+
+
+    timer =
+        setInterval(
+            () => {
+
+                seconds++;
+
+                updateTimer();
+
+            },
+            1000
+        );
+
+}
+
+
+function stopTimer() {
+
+    clearInterval(
+        timer
+    );
+
+}
+
+
+function updateTimer() {
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const remaining =
+        seconds % 60;
+
+
+    document.getElementById(
+        "timer"
+    ).textContent =
+
+        String(minutes)
+            .padStart(2, "0")
+
+        + ":" +
+
+        String(remaining)
+            .padStart(2, "0");
+
+}
+
+
+/* =========================================================
+   SUDOKU SOLVER
+========================================================= */
+
+function solveSudoku(grid) {
+
+    for (
+        let row = 0;
+        row < 9;
+        row++
+    ) {
+
+        for (
+            let col = 0;
+            col < 9;
+            col++
+        ) {
+
+            if (
+                grid[row][col] === 0
+            ) {
+
+                for (
+                    let number = 1;
+                    number <= 9;
+                    number++
+                ) {
+
+                    if (
+                        isValid(
+                            grid,
+                            row,
+                            col,
+                            number
+                        )
+                    ) {
+
+                        grid[row][col] =
+                            number;
+
+
+                        if (
+                            solveSudoku(
+                                grid
+                            )
+                        ) {
+
+                            return true;
+
+                        }
+
+
+                        grid[row][col] =
+                            0;
+
+                    }
+
+                }
+
+
+                return false;
+
+            }
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   SUDOKU VALIDATION
+========================================================= */
+
+function isValid(
+    grid,
+    row,
+    col,
+    number
+) {
+
+    for (
+        let i = 0;
+        i < 9;
+        i++
+    ) {
+
+        if (
+            grid[row][i] === number
+        ) {
+
+            return false;
+
+        }
+
+
+        if (
+            grid[i][col] === number
+        ) {
+
+            return false;
+
+        }
+
+    }
+
+
+    const boxRow =
+        Math.floor(row / 3) * 3;
+
+
+    const boxCol =
+        Math.floor(col / 3) * 3;
+
+
+    for (
+        let rowIndex = boxRow;
+        rowIndex < boxRow + 3;
+        rowIndex++
+    ) {
+
+        for (
+            let colIndex = boxCol;
+            colIndex < boxCol + 3;
+            colIndex++
+        ) {
+
+            if (
+                grid[rowIndex][colIndex] ===
+                number
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+document
+    .getElementById(
+        "backButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            stopTimer();
+
+            gameScreen.classList.remove(
+                "active"
+            );
+
+            homeScreen.classList.add(
+                "active"
+            );
+
+            updateProgress();
+
+            saveCoins();
+
+        }
+    );
+
+
+/* =========================================================
+   NEW PUZZLE
+========================================================= */
+
+document
+    .getElementById(
+        "newPuzzle"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            setupGame();
+
+        }
+    );
+
+
+/* =========================================================
+   CONTINUE AFTER WIN
+========================================================= */
+
+document
+    .getElementById(
+        "continueButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "winPopup"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+
+            gameScreen.classList.remove(
+                "active"
+            );
+
+
+            homeScreen.classList.add(
+                "active"
+            );
+
+
+            updateProgress();
+
+            updateTimeTheme();
+
+        }
+    );
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+document
+    .getElementById(
+        "tryAgain"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "gameOverPopup"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+
+            setupGame();
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "goHome"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "gameOverPopup"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+
+            gameScreen.classList.remove(
+                "active"
+            );
+
+
+            homeScreen.classList.add(
+                "active"
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   TUTORIAL
+========================================================= */
+
+document
+    .getElementById(
+        "tutorialButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "tutorialPopup"
+                )
+                .classList.add(
+                    "show"
+                );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "closeTutorial"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "tutorialPopup"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "okayTutorial"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "tutorialPopup"
+                )
+                .classList.remove(
+                    "show"
+                );
+
+        }
+    );
+
+
+/* =========================================================
+   DAILY CHALLENGE
+========================================================= */
+
+document
+    .getElementById(
+        "dailyButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            selectedLevel =
+                "medium";
+
+
+            alert(
+                "🌸 Today's Sakura Challenge\n\n" +
+                "Complete today's puzzle and add it to your Perfect Day!"
+            );
+
+
+            startGame();
+
+        }
+    );
+
+
+/* =========================================================
+   CLOSE POPUPS WHEN CLICKING OUTSIDE
+========================================================= */
+
+document
+    .querySelectorAll(".popup")
+    .forEach(popup => {
+
+        popup.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target === popup
+                ) {
+
+                    popup.classList.remove(
+                        "show"
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+
+/* =========================================================
+   KEYBOARD SUPPORT
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            !gameScreen.classList.contains(
+                "active"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const number =
+            Number(event.key);
+
+
+        if (
+            number >= 1 &&
+            number <= 9
+        ) {
+
+            enterNumber(number);
+
+        }
+
+
+        if (
+            event.key === "Backspace" ||
+            event.key === "Delete"
+        ) {
+
+            document
+                .getElementById(
+                    "eraseButton"
+                )
+                .click();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALISE
+========================================================= */
+
+updateProgress();
+
+saveCoins();
+
+updateTimeTheme();
+
+</script>
+
+</body>
+</html>
